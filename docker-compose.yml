@@ -10,4 +10,4 @@ logitechmediaserver:
 #  volumes:
 #    - <your-music-dir>:/mnt/music
 #    - <your-playlist-dir>:/mnt/playlists
-#    - <your-dir-for-cache>:/mnt/state
+#    - <your-dir-for-cache-and-etc>:/mnt/state
