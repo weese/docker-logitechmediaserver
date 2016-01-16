@@ -3,6 +3,7 @@ MAINTAINER Justifiably <justifiably@ymail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN echo "Europe/Berlin" > /etc/timezone && dpkg-reconfigure tzdata
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y curl
@@ -28,7 +29,16 @@ RUN apt-get update && \
     sox \
     wavpack
 
-RUN echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen && \
+# dependencies for shairtunes2 plugin
+RUN apt-get install -y --force-yes \
+    libcrypt-openssl-rsa-perl \
+    libio-socket-inet6-perl \
+    libwww-perl avahi-utils \
+    libio-socket-ssl-perl
+RUN curl -o /tmp/libnet-sdp-perl_0.07-1_all.deb http://www.inf.udec.cl/~diegocaro/rpi/libnet-sdp-perl_0.07-1_all.deb && \
+    dpkg -i /tmp/libnet-sdp-perl_0.07-1_all.deb
+
+RUN echo "en_US.UTF-8 de_DE.UTF-8 UTF-8" >> /etc/locale.gen && \
     DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
 
 # Fix UID for squeezeboxserver user to help with host volumes
@@ -51,10 +61,10 @@ RUN mkdir -p /mnt/state/etc && \
 
 RUN mkdir -p /var/log/supervisor
 COPY ./supervisord.conf /etc/
-COPY ./start-lms.sh /usr/local/bin
+COPY ./start-lms.sh /usr/bin/
 
 VOLUME ["/mnt/state","/mnt/music","/mnt/playlists"]
 EXPOSE 3483 3483/udp 9000 9090 9005
 
-CMD ["/usr/local/bin/start-lms.sh"]
+CMD ["/usr/bin/start-lms.sh"]
 
