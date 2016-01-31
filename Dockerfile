@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER Justifiably <justifiably@ymail.com>
+MAINTAINER Davomat <tre@gmx.de>
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -10,6 +10,7 @@ RUN apt-get update && \
 
 # Fetch latest 7.9 release
 RUN curl -s "http://www.mysqueezebox.com/update/?version=7.9.0&revision=1&geturl=1&os=deb" | xargs curl -o /tmp/lms.deb 
+#COPY ./logitechmediaserver_7.9.0~1447333834_all.deb /tmp/lms.deb
 
 # Dependencies first
 RUN echo "deb http://www.deb-multimedia.org jessie main non-free" | tee -a /etc/apt/sources.list && \
@@ -38,12 +39,11 @@ RUN apt-get install -y --force-yes \
 RUN curl -o /tmp/libnet-sdp-perl_0.07-1_all.deb http://www.inf.udec.cl/~diegocaro/rpi/libnet-sdp-perl_0.07-1_all.deb && \
     dpkg -i /tmp/libnet-sdp-perl_0.07-1_all.deb
 
-RUN echo "en_US.UTF-8 de_DE.UTF-8 UTF-8" >> /etc/locale.gen && \
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen && \
     DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales
 
-# Fix UID for squeezeboxserver user to help with host volumes
-RUN useradd --system --uid 819 -M -s /bin/false -d /usr/share/squeezeboxserver -G nogroup -c "Logitech Media Server user" squeezeboxserver && \
-    dpkg -i /tmp/lms.deb && \
+RUN dpkg -i /tmp/lms.deb && \
     rm -f  /tmp/lms.deb
 
 # Cleanup
@@ -53,18 +53,14 @@ RUN apt-get -y remove curl && \
     rm -rf /var/lib/apt/lists/*
         
 # Move config dir to allow editing convert.conf
-RUN mkdir -p /mnt/state/etc && \
-    mv /etc/squeezeboxserver /etc/squeezeboxserver.orig && \
-    cp -pr /etc/squeezeboxserver.orig/* /mnt/state/etc && \
-    ln -s /mnt/state/etc /etc/squeezeboxserver && \
-    chown -R squeezeboxserver.nogroup /mnt/state
+RUN mv /etc/squeezeboxserver /etc/squeezeboxserver.orig && \
+    ln -s /var/lib/squeezeboxserver/etc /etc/squeezeboxserver
 
 RUN mkdir -p /var/log/supervisor
 COPY ./supervisord.conf /etc/
 COPY ./start-lms.sh /usr/bin/
 
-VOLUME ["/mnt/state","/mnt/music","/mnt/playlists"]
+VOLUME ["/var/lib/squeezeboxserver","/home/public/Music","/home/public/Playlists"]
 EXPOSE 3483 3483/udp 9000 9090 9005
 
 CMD ["/usr/bin/start-lms.sh"]
-
