@@ -1,6 +1,6 @@
 logitechmediaserver:
   container_name: "logitechmediaserver"
-  image: michaelatdocker/docker-logitechmediaserver
+  image: davomat/logitechmediaserver
   ports:
     - 9000:9000
     - 9090:9090
