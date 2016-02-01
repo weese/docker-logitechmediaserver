@@ -34,10 +34,14 @@ RUN apt-get update && \
 RUN apt-get install -y --force-yes \
     libcrypt-openssl-rsa-perl \
     libio-socket-inet6-perl \
-    libwww-perl avahi-utils \
+    libwww-perl \
+    avahi-daemon \
+    avahi-utils \
     libio-socket-ssl-perl
 RUN curl -o /tmp/libnet-sdp-perl_0.07-1_all.deb http://www.inf.udec.cl/~diegocaro/rpi/libnet-sdp-perl_0.07-1_all.deb && \
     dpkg -i /tmp/libnet-sdp-perl_0.07-1_all.deb
+
+RUN curl -o /usr/bin/shairport_helper http://github.com/StuartUSA/shairport_plugin/blob/master/shairport_helper/pre-compiled/shairport_helper-x64-static
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen && \
@@ -57,10 +61,17 @@ RUN mv /etc/squeezeboxserver /etc/squeezeboxserver.orig && \
     ln -s /var/lib/squeezeboxserver/etc /etc/squeezeboxserver
 
 RUN mkdir -p /var/log/supervisor
-COPY ./supervisord.conf /etc/
 COPY ./start-lms.sh /usr/bin/
+COPY ./avahi-daemon.conf /etc/avahi/
+COPY ./start-avahi.sh /usr/bin/
+COPY ./supervisord.conf /etc/
 
 VOLUME ["/var/lib/squeezeboxserver","/home/public/Music","/home/public/Playlists"]
+
+# Expose LMS Ports
 EXPOSE 3483 3483/udp 9000 9090 9005
+
+# Expose Avahi Discovery Port
+EXPOSE 5353/udp
 
 CMD ["/usr/bin/start-lms.sh"]

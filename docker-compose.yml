@@ -1,12 +1,13 @@
-logitechmediaserver:
-  container_name: "logitechmediaserver"
-  image: davomat/logitechmediaserver
+logitechmediaserver-shairport:
+  container_name: "logitechmediaserver-shairport"
+  image: davomat/logitechmediaserver-shairport
   ports:
     - 9000:9000
     - 9090:9090
     - 3483:3483
     - 3483/udp:3483/udp
     - 9005:9005
+    - 5353/udp:5353/udp
   volumes:
     - /home/public/Music:/home/public/Music
     - /home/public/Playlists:/home/public/Playlists
