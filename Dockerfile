@@ -62,16 +62,10 @@ RUN mv /etc/squeezeboxserver /etc/squeezeboxserver.orig && \
 
 RUN mkdir -p /var/log/supervisor
 COPY ./start-lms.sh /usr/bin/
-COPY ./avahi-daemon.conf /etc/avahi/
 COPY ./start-avahi.sh /usr/bin/
 COPY ./supervisord.conf /etc/
 
-VOLUME ["/var/lib/squeezeboxserver","/home/public/Music","/home/public/Playlists"]
-
-# Expose LMS Ports
-EXPOSE 3483 3483/udp 9000 9090 9005
-
-# Expose Avahi Discovery Port
-EXPOSE 5353/udp
+VOLUME ["/var/lib/squeezeboxserver","/home/public/Music","/home/public/Playlists","/etc/avahi"]
+EXPOSE 3483 3483/udp 9000 9090 9005 5353/udp
 
 CMD ["/usr/bin/start-lms.sh"]

@@ -12,3 +12,5 @@ logitechmediaserver-shairport:
     - /home/public/Music:/home/public/Music
     - /home/public/Playlists:/home/public/Playlists
     - /var/lib/squeezeboxserver:/var/lib/squeezeboxserver
+    - /etc/avahi:/etc/avahi
+  net: "host"
