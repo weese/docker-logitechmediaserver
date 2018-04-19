@@ -14,7 +14,7 @@ RUN curl -s "http://www.mysqueezebox.com/update/?version=7.9.0&revision=1&geturl
 
 # Dependencies first
 RUN echo "deb http://www.deb-multimedia.org jessie main non-free" | tee -a /etc/apt/sources.list && \
-    curl -s -o /tmp/key.deb https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2015.6.1_all.deb && \
+    curl -s -o /tmp/key.deb https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb && \
     dpkg -i /tmp/key.deb && \
     rm -f /tmp/key.deb
 
@@ -38,10 +38,10 @@ RUN apt-get install -y --force-yes \
     avahi-daemon \
     avahi-utils \
     libio-socket-ssl-perl
-RUN curl -o /tmp/libnet-sdp-perl_0.07-1_all.deb http://www.inf.udec.cl/~diegocaro/rpi/libnet-sdp-perl_0.07-1_all.deb && \
-    dpkg -i /tmp/libnet-sdp-perl_0.07-1_all.deb
+ADD libnet-sdp-perl_0.07-1_all.deb /tmp/
+RUN dpkg -i /tmp/libnet-sdp-perl_0.07-1_all.deb
 
-RUN curl -o /usr/bin/shairport_helper http://github.com/StuartUSA/shairport_plugin/blob/master/shairport_helper/pre-compiled/shairport_helper-x64-static
+RUN ln -s /var/lib/squeezeboxserver/cache/InstalledPlugins/Plugins/ShairTunes/shairport_helper/pre-compiled/shairport_helper-x64-static /usr/bin/shairport_helper
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen && \
@@ -65,7 +65,7 @@ COPY ./start-lms.sh /usr/bin/
 COPY ./start-avahi.sh /usr/bin/
 COPY ./supervisord.conf /etc/
 
-VOLUME ["/var/lib/squeezeboxserver","/home/public/Music","/home/public/Playlists","/etc/avahi"]
+VOLUME ["/home/public/Music","/home/public/Playlists","/var/lib/squeezeboxserver","/etc/avahi"]
 EXPOSE 3483 3483/udp 9000 9090 9005 5353/udp
 
 CMD ["/usr/bin/start-lms.sh"]
